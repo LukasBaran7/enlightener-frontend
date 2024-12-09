@@ -12,42 +12,99 @@ interface DailyCount {
   count: number;
 }
 
-const dailyCounts = ref<DailyCount[]>([]);
+interface ReadingCounts {
+  archived_count: number;
+  later_count: number;
+}
+
+const readCounts = ref<DailyCount[]>([]);
+const savedCounts = ref<DailyCount[]>([]);
+const totalCounts = ref<ReadingCounts | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
 async function fetchDailyCounts() {
   try {
     loading.value = true;
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/reader/articles/daily-counts`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch daily counts');
+    const [readResponse, savedResponse, countsResponse] = await Promise.all([
+      fetch(`${import.meta.env.VITE_API_URL}/reader/articles/daily-counts`),
+      fetch(`${import.meta.env.VITE_API_URL}/reader/later/daily-counts`),
+      fetch(`${import.meta.env.VITE_API_URL}/reader/counts`)
+    ]);
+
+    if (!readResponse.ok || !savedResponse.ok || !countsResponse.ok) {
+      throw new Error('Failed to fetch counts');
     }
-    dailyCounts.value = await response.json();
+
+    readCounts.value = await readResponse.json();
+    savedCounts.value = await savedResponse.json();
+    totalCounts.value = await countsResponse.json();
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load data';
-    console.error('Error fetching daily counts:', err);
+    console.error('Error fetching counts:', err);
   } finally {
     loading.value = false;
   }
 }
 
 const formattedData = computed(() => {
-  const data = dailyCounts.value.map(item => ({
+  const readData = readCounts.value.map(item => ({
     ...item,
     formattedDate: format(parseISO(item.date), 'MMM d'),
     goalMet: item.count >= 5,
   }));
 
+  const savedData = savedCounts.value.map(item => ({
+    ...item,
+    formattedDate: format(parseISO(item.date), 'MMM d'),
+  }));
+
+  // Get unique dates from both arrays
+  const dates = [...new Set([
+    ...readData.map(d => d.formattedDate),
+    ...savedData.map(d => d.formattedDate)
+  ])];
+
   return {
-    labels: data.map(d => d.formattedDate),
+    labels: dates,
     datasets: [
       {
+        label: 'Read > Saved',
+        data: dates.map(date => {
+          const readItem = readData.find(d => d.formattedDate === date);
+          const savedItem = savedData.find(d => d.formattedDate === date);
+          const readCount = readItem ? readItem.count : 0;
+          const savedCount = savedItem ? savedItem.count : 0;
+          return readCount > savedCount ? readCount : 0;
+        }),
+        fill: true,
+        backgroundColor: 'rgba(100, 108, 255, 0.1)',
+        borderWidth: 0,
+        pointRadius: 0,
+        order: 3 // Put this dataset in the background
+      },
+      {
         label: 'Articles Read',
-        data: data.map(d => d.count),
+        data: dates.map(date => {
+          const item = readData.find(d => d.formattedDate === date);
+          return item ? item.count : 0;
+        }),
         fill: false,
         borderColor: '#646cff',
-        tension: 0.1
+        tension: 0.1,
+        order: 1
+      },
+      {
+        label: 'Articles Saved',
+        data: dates.map(date => {
+          const item = savedData.find(d => d.formattedDate === date);
+          return item ? item.count : 0;
+        }),
+        fill: false,
+        borderColor: '#22c55e',
+        tension: 0.1,
+        borderDash: [5, 5],
+        order: 2
       }
     ]
   };
@@ -58,7 +115,10 @@ const chartOptions = {
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      display: true
+      display: true,
+      labels: {
+        filter: (item: any) => item.text !== 'Read > Saved' // Hide the background dataset from legend
+      }
     },
     annotation: {
       annotations: {
@@ -88,19 +148,24 @@ const chartOptions = {
 };
 
 const stats = computed(() => {
-  const data = dailyCounts.value;
+  const readData = readCounts.value;
+  const savedData = savedCounts.value;
+  
   return {
-    today: data[data.length - 1]?.count || 0,
-    average: (data.reduce((sum: number, item: DailyCount) => sum + item.count, 0) / data.length || 0).toFixed(1),
-    goalsMetCount: data.filter(item => item.count >= 5).length,
-    total: data.reduce((sum: number, item: DailyCount) => sum + item.count, 0)
+    readToday: readData[readData.length - 1]?.count || 0,
+    savedToday: savedData[savedData.length - 1]?.count || 0,
+    readAverage: (readData.reduce((sum, item) => sum + item.count, 0) / readData.length || 0).toFixed(1),
+    savedAverage: (savedData.reduce((sum, item) => sum + item.count, 0) / savedData.length || 0).toFixed(1),
+    goalsMetCount: readData.filter(item => item.count >= 5).length,
+    readTotal: readData.reduce((sum, item) => sum + item.count, 0),
+    savedTotal: savedData.reduce((sum, item) => sum + item.count, 0)
   };
 });
 
 const tableData = computed(() => {
   const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
   
-  return dailyCounts.value.map(item => ({
+  return readCounts.value.map(item => ({
     date: format(parseISO(item.date), 'EEE, MMM d'),
     count: item.count,
     goalMet: item.count >= 5,
@@ -110,6 +175,44 @@ const tableData = computed(() => {
   })).reverse();
 });
 
+const combinedTableData = computed(() => {
+  const today = new Date().toISOString().split('T')[0];
+  
+  // Create a map of all dates with their read/saved counts
+  const dateMap = new Map();
+  
+  readCounts.value.forEach(item => {
+    dateMap.set(item.date, {
+      date: format(parseISO(item.date), 'EEE, MMM d'),
+      readCount: item.count,
+      savedCount: 0,
+      isToday: item.date === today
+    });
+  });
+  
+  savedCounts.value.forEach(item => {
+    if (dateMap.has(item.date)) {
+      dateMap.get(item.date).savedCount = item.count;
+    } else {
+      dateMap.set(item.date, {
+        date: format(parseISO(item.date), 'EEE, MMM d'),
+        readCount: 0,
+        savedCount: item.count,
+        isToday: item.date === today
+      });
+    }
+  });
+  
+  // Convert map to array and sort by date descending
+  return Array.from(dateMap.values())
+    .sort((a, b) => parseISO(b.date).getTime() - parseISO(a.date).getTime())
+    .map(item => ({
+      ...item,
+      difference: item.readCount - item.savedCount,
+      ratio: item.savedCount ? (item.readCount / item.savedCount * 100).toFixed(0) : 0
+    }));
+});
+
 onMounted(() => {
   fetchDailyCounts();
 });
@@ -117,7 +220,7 @@ onMounted(() => {
 
 <template>
   <div class="daily-stats">
-    <h2 class="text-xl font-bold mb-4">Daily Reading Progress</h2>
+    <h2 class="text-xl font-bold mb-4">Daily Reading Activity</h2>
 
     <div v-if="loading" class="loading">
       Loading statistics...
@@ -134,20 +237,36 @@ onMounted(() => {
 
       <div class="stats-grid">
         <div class="stat-card">
-          <p class="label">Today's Count</p>
-          <p class="value">{{ stats.today }}</p>
+          <p class="label">Read Today</p>
+          <p class="value">{{ stats.readToday }}</p>
         </div>
         <div class="stat-card">
-          <p class="label">Weekly Average</p>
-          <p class="value">{{ stats.average }}</p>
+          <p class="label">Saved Today</p>
+          <p class="value">{{ stats.savedToday }}</p>
+        </div>
+        <div class="stat-card">
+          <p class="label">Read Average</p>
+          <p class="value">{{ stats.readAverage }}</p>
+        </div>
+        <div class="stat-card">
+          <p class="label">Saved Average</p>
+          <p class="value">{{ stats.savedAverage }}</p>
         </div>
         <div class="stat-card">
           <p class="label">Goals Met</p>
           <p class="value">{{ stats.goalsMetCount }}</p>
         </div>
         <div class="stat-card">
-          <p class="label">Total Articles</p>
-          <p class="value">{{ stats.total }}</p>
+          <p class="label">Total Read</p>
+          <p class="value">{{ stats.readTotal }}</p>
+        </div>
+        <div class="stat-card total-stat">
+          <p class="label">Total Archive</p>
+          <p class="value">{{ totalCounts?.archived_count?.toLocaleString() || 0 }}</p>
+        </div>
+        <div class="stat-card total-stat">
+          <p class="label">Reading List</p>
+          <p class="value">{{ totalCounts?.later_count?.toLocaleString() || 0 }}</p>
         </div>
       </div>
 
@@ -192,6 +311,54 @@ onMounted(() => {
                         Read {{ day.count }}/5
                       </span>
                     </template>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="daily-breakdown">
+        <h3 class="text-lg font-semibold mb-3 mt-6">Read vs Saved Breakdown</h3>
+        <div class="table-container">
+          <table class="progress-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Read</th>
+                <th>Saved</th>
+                <th>Difference</th>
+                <th>Read Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="day in combinedTableData" :key="day.date">
+                <td>{{ day.date }}</td>
+                <td>{{ day.readCount }}</td>
+                <td>{{ day.savedCount }}</td>
+                <td>
+                  <span 
+                    :class="{
+                      'text-green-500': day.difference > 0,
+                      'text-red-500': day.difference < 0
+                    }"
+                  >
+                    {{ day.difference > 0 ? '+' : ''}}{{ day.difference }}
+                  </span>
+                </td>
+                <td>
+                  <div class="completion-rate">
+                    <div 
+                      class="completion-bar"
+                      :style="{ width: `${Math.min(100, day.ratio)}%` }"
+                      :class="{
+                        'bg-green-500': day.ratio >= 100,
+                        'bg-yellow-500': day.ratio > 50 && day.ratio < 100,
+                        'bg-red-500': day.ratio <= 50
+                      }"
+                    ></div>
+                    <span class="completion-text">{{ day.ratio }}%</span>
                   </div>
                 </td>
               </tr>
@@ -345,6 +512,70 @@ onMounted(() => {
 
   .progress-text {
     display: none;
+  }
+}
+
+/* Add these to your existing styles */
+.completion-rate {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  background: var(--progress-bg, #ffffff1a);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.completion-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.completion-text {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.875rem;
+  color: var(--text-color, #fff);
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.text-green-500 {
+  color: #22c55e;
+}
+
+.text-yellow-500 {
+  color: #eab308;
+}
+
+.text-red-500 {
+  color: #ef4444;
+}
+
+.bg-green-500 {
+  background-color: #22c55e;
+}
+
+.bg-yellow-500 {
+  background-color: #eab308;
+}
+
+.bg-red-500 {
+  background-color: #ef4444;
+}
+
+.total-stat {
+  background: var(--card-bg, #ffffff0d);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  border: 1px solid var(--border-color, #ffffff1a);
+  grid-column: span 2;
+}
+
+@media (max-width: 640px) {
+  .total-stat {
+    grid-column: span 1;
   }
 }
 </style> 
