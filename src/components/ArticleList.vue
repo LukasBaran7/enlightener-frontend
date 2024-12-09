@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import type { Article, DayStats } from '../types/Article';
-import { fetchArticles } from '../api/articles';
+import { fetchArticles, fetchRandomArticles } from '../api/articles';
+
+const props = defineProps<{
+  mode: 'history' | 'random'
+}>();
 
 const articles = ref<Article[]>([]);
 const loading = ref(true);
@@ -96,7 +100,11 @@ const readingDistribution = computed(() => {
 
 onMounted(async () => {
   try {
-    articles.value = await fetchArticles();
+    if (props.mode === 'history') {
+      articles.value = await fetchArticles();
+    } else {
+      articles.value = await fetchRandomArticles();
+    }
   } catch (e) {
     error.value = e instanceof Error 
       ? e.message 
@@ -134,7 +142,8 @@ function formatWordCount(count?: number): string {
     </div>
     
     <template v-else>
-      <div class="stats-grid">
+      <!-- Show stats grid only in history mode -->
+      <div v-if="mode === 'history'" class="stats-grid">
         <div class="stat-card">
           <span class="summary-icon">📚</span>
           <div class="stat-content">
@@ -209,8 +218,81 @@ function formatWordCount(count?: number): string {
         </div>
       </div>
 
+      <!-- Show simple header for random mode -->
+      <div v-else class="random-header">
+        <h2 class="section-title">
+          <span class="section-icon">🎲</span>
+          Suggested Articles for Later
+        </h2>
+        <p class="random-description">
+          Here are 5 random articles from your reading list that you might want to read next.
+        </p>
+      </div>
+
+      <!-- Regular articles section -->
+      <div v-if="regularArticles.length > 0" class="article-section">
+        <h2 v-if="mode === 'history'" class="section-title">
+          <span class="section-icon">📚</span>
+          Saved Articles
+        </h2>
+        
+        <div v-for="article in regularArticles" 
+             :key="article.id" 
+             class="article-item">
+          <div class="article-content">
+            <div class="article-header">
+              <div class="article-text">
+                <div class="source-info">
+                  <span class="source">
+                    {{ article.site_name || article.source }}
+                  </span>
+                  <span v-if="article.author" class="author">
+                    by {{ article.author }}
+                  </span>
+                </div>
+                <h3>
+                  <a :href="article.url" target="_blank" class="article-link">
+                    {{ article.title }}
+                    <span class="link-icon">📄</span>
+                  </a>
+                </h3>
+              </div>
+              <img v-if="article.image_url" 
+                   :src="article.image_url" 
+                   :alt="article.title"
+                   class="thumbnail">
+            </div>
+            
+            <p v-if="article.summary" class="summary">
+              {{ article.summary }}
+            </p>
+            
+            <div class="article-meta">
+              <div class="reading-info">
+                <time>Saved {{ formatDate(article.saved_at) }}</time>
+                <time>Read {{ formatDate(article.updated_at) }}</time>
+              </div>
+              <div class="stats">
+                <span v-if="article.word_count" class="word-count">
+                  {{ formatWordCount(article.word_count) }}
+                </span>
+                <a 
+                  v-if="article.source_url" 
+                  :href="article.source_url" 
+                  target="_blank" 
+                  class="source-link"
+                  title="Visit original source">
+                  Original Source
+                  <span class="link-icon">🔗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Newsletter articles section -->
-      <div v-if="newsletterArticles.length > 0" class="article-section">
+      <div v-if="mode === 'history' && newsletterArticles.length > 0" class="article-section">
         <h2 class="section-title">
           <span class="section-icon">📧</span>
           Newsletters
@@ -230,7 +312,10 @@ function formatWordCount(count?: number): string {
                   </span>
                 </div>
                 <h3>
-                  <a :href="article.url" target="_blank">{{ article.title }}</a>
+                  <a :href="article.url" target="_blank" class="article-link">
+                    {{ article.title }}
+                    <span class="link-icon">📄</span>
+                  </a>
                 </h3>
               </div>
               <img v-if="article.image_url" 
@@ -252,55 +337,15 @@ function formatWordCount(count?: number): string {
                 <span v-if="article.word_count" class="word-count">
                   {{ formatWordCount(article.word_count) }}
                 </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Regular articles section -->
-      <div v-if="regularArticles.length > 0" class="article-section">
-        <h2 class="section-title">
-          <span class="section-icon">📚</span>
-          Saved Articles
-        </h2>
-        <div v-for="article in regularArticles" 
-             :key="article.id" 
-             class="article-item">
-          <div class="article-content">
-            <div class="article-header">
-              <div class="article-text">
-                <div class="source-info">
-                  <span class="source">
-                    {{ article.site_name || article.source }}
-                  </span>
-                  <span v-if="article.author" class="author">
-                    by {{ article.author }}
-                  </span>
-                </div>
-                <h3>
-                  <a :href="article.url" target="_blank">{{ article.title }}</a>
-                </h3>
-              </div>
-              <img v-if="article.image_url" 
-                   :src="article.image_url" 
-                   :alt="article.title"
-                   class="thumbnail">
-            </div>
-            
-            <p v-if="article.summary" class="summary">
-              {{ article.summary }}
-            </p>
-            
-            <div class="article-meta">
-              <div class="reading-info">
-                <time>Saved {{ formatDate(article.saved_at) }}</time>
-                <time>Read {{ formatDate(article.updated_at) }}</time>
-              </div>
-              <div class="stats">
-                <span v-if="article.word_count" class="word-count">
-                  {{ formatWordCount(article.word_count) }}
-                </span>
+                <a 
+                  v-if="article.source_url" 
+                  :href="article.source_url" 
+                  target="_blank" 
+                  class="source-link"
+                  title="Visit original source">
+                  Original Source
+                  <span class="link-icon">🔗</span>
+                </a>
               </div>
             </div>
           </div>
@@ -651,5 +696,77 @@ function formatWordCount(count?: number): string {
     font-size: 1.25rem;
     margin-bottom: 1rem;
   }
+}
+
+.random-header {
+  margin-bottom: 2rem;
+}
+
+.random-description {
+  color: var(--text-muted, #888);
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.stats {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.source-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: #4a4a4a;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.source-link:hover {
+  background: #5a5a5a;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.source-link:active {
+  background: #404040;
+}
+
+.link-icon {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+@media (max-width: 640px) {
+  .stats {
+    flex-wrap: wrap;
+  }
+  
+  .source-link {
+    flex: 1;
+    justify-content: center;
+    background: #333333;
+  }
+}
+
+.article-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.article-link .link-icon {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.article-link:hover .link-icon {
+  opacity: 1;
 }
 </style> 
