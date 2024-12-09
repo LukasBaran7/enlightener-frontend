@@ -233,8 +233,8 @@ function formatWordCount(count?: number): string {
                   <a :href="article.url" target="_blank">{{ article.title }}</a>
                 </h3>
               </div>
-              <img v-if="article.imageUrl" 
-                   :src="article.imageUrl" 
+              <img v-if="article.image_url" 
+                   :src="article.image_url" 
                    :alt="article.title"
                    class="thumbnail">
             </div>
@@ -282,8 +282,8 @@ function formatWordCount(count?: number): string {
                   <a :href="article.url" target="_blank">{{ article.title }}</a>
                 </h3>
               </div>
-              <img v-if="article.imageUrl" 
-                   :src="article.imageUrl" 
+              <img v-if="article.image_url" 
+                   :src="article.image_url" 
                    :alt="article.title"
                    class="thumbnail">
             </div>
