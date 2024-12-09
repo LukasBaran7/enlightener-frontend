@@ -21,10 +21,22 @@ const activeTab = ref('articles')
         @click="activeTab = 'articles'">
         Read Articles
       </button>
+      <button 
+        :class="{ active: activeTab === 'random' }"
+        @click="activeTab = 'random'">
+        Read Later
+      </button>
     </div>
 
     <EpisodeList v-if="activeTab === 'podcasts'" />
-    <ArticleList v-if="activeTab === 'articles'" />
+    <ArticleList 
+      v-if="activeTab === 'articles'" 
+      :mode="'history'" 
+    />
+    <ArticleList 
+      v-if="activeTab === 'random'" 
+      :mode="'random'" 
+    />
   </div>
 </template>
 

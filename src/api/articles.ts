@@ -1,10 +1,12 @@
 import { Article } from '../types/Article';
 
-const API_URL = import.meta.env.VITE_API_URL + '/reader/articles?days=14&sort_by=updated_at&order=desc';
+const BASE_API_URL = import.meta.env.VITE_API_URL + '/reader';
+const ARTICLES_API_URL = `${BASE_API_URL}/articles?days=14&sort_by=updated_at&order=desc`;
+const RANDOM_ARTICLES_API_URL = `${BASE_API_URL}/random-later`;
 
 export async function fetchArticles(): Promise<Article[]> {
   try {
-    const response = await fetch(API_URL);
+    const response = await fetch(ARTICLES_API_URL);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -12,6 +14,20 @@ export async function fetchArticles(): Promise<Article[]> {
     return data;
   } catch (error) {
     console.error('Error fetching articles:', error);
+    throw error;
+  }
+}
+
+export async function fetchRandomArticles(): Promise<Article[]> {
+  try {
+    const response = await fetch(RANDOM_ARTICLES_API_URL);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching random articles:', error);
     throw error;
   }
 } 
