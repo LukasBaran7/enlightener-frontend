@@ -10,25 +10,31 @@ interface ReadingCounts {
   later_count: number;
 }
 
+interface StatsResponse {
+  total_counts: ReadingCounts;
+  daily_counts: {
+    archived: DailyCount[];
+    later: DailyCount[];
+  }
+}
+
 export async function fetchDailyCounts() {
   try {
-    const [readResponse, savedResponse, countsResponse] = await Promise.all([
-      fetch(`${BASE_API_URL}/articles/daily-counts`),
-      fetch(`${BASE_API_URL}/later/daily-counts`),
-      fetch(`${BASE_API_URL}/counts`)
-    ]);
+    const response = await fetch(`${BASE_API_URL}/stats`);
 
-    if (!readResponse.ok || !savedResponse.ok || !countsResponse.ok) {
-      throw new Error('Failed to fetch counts');
+    if (!response.ok) {
+      throw new Error('Failed to fetch stats');
     }
 
+    const data = await response.json() as StatsResponse;
+    
     return {
-      readCounts: await readResponse.json() as DailyCount[],
-      savedCounts: await savedResponse.json() as DailyCount[],
-      totalCounts: await countsResponse.json() as ReadingCounts
+      readCounts: data.daily_counts.archived,
+      savedCounts: data.daily_counts.later,
+      totalCounts: data.total_counts
     };
   } catch (error) {
-    console.error('Error fetching daily counts:', error);
+    console.error('Error fetching stats:', error);
     throw error;
   }
 } 
