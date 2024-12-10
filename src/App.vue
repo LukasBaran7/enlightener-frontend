@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import EpisodeList from './components/EpisodeList.vue'
 import ArticleList from './components/ArticleList.vue'
 import DailyReadingStats from './components/DailyReadingStats.vue'
+import CuratedArticles from './components/CuratedArticles.vue'
 
 const activeTab = ref('articles')
 </script>
@@ -28,6 +29,11 @@ const activeTab = ref('articles')
         Read Later
       </button>
       <button 
+        :class="{ active: activeTab === 'curated' }"
+        @click="activeTab = 'curated'">
+        For You
+      </button>
+      <button 
         :class="{ active: activeTab === 'stats' }"
         @click="activeTab = 'stats'">
         Reading Stats
@@ -43,6 +49,7 @@ const activeTab = ref('articles')
       v-if="activeTab === 'random'" 
       :mode="'random'" 
     />
+    <CuratedArticles v-if="activeTab === 'curated'" />
     <DailyReadingStats v-if="activeTab === 'stats'" />
   </div>
 </template>
