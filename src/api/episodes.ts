@@ -11,9 +11,18 @@ export async function fetchEpisodes(): Promise<Podcast[]> {
     const data = await response.json();
     
     return data.map((podcast: any) => ({
-      podcastTitle: podcast.podcastTitle,
-      artworkUrl: podcast.artworkUrl,
-      episodes: podcast.episodes
+      podcastTitle: podcast.podcast_title,
+      artworkUrl: podcast.artwork_url,
+      episodes: podcast.episodes.map((episode: any) => ({
+        episodeTitle: episode.episode_title,
+        audioUrl: episode.audio_url,
+        overcastUrl: episode.overcast_url,
+        overcastId: episode.overcast_id,
+        publishedDate: episode.published_date,
+        playProgress: episode.play_progress,
+        lastPlayedAt: episode.last_played_at,
+        summary: episode.summary
+      }))
     }));
   } catch (error) {
     console.error('Error fetching episodes:', error);

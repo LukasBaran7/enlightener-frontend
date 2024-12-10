@@ -42,7 +42,11 @@ function formatDate(dateString: string): string {
     <template v-else>
       <div v-for="podcast in podcasts" :key="podcast.podcastTitle" class="podcast-group">
         <div class="podcast-header">
-          <img :src="podcast.artworkUrl" :alt="podcast.podcastTitle" class="podcast-artwork">
+          <img 
+            :src="podcast.artworkUrl || '/path/to/default-image.png'" 
+            :alt="podcast.podcastTitle" 
+            class="podcast-artwork"
+          >
           <h2 class="podcast-title">{{ podcast.podcastTitle }}</h2>
         </div>
         
