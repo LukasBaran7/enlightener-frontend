@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { Line } from 'vue-chartjs';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import { format, parseISO } from 'date-fns';
+import { fetchDailyCounts } from '../api/stats';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -23,22 +24,13 @@ const totalCounts = ref<ReadingCounts | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
-async function fetchDailyCounts() {
+async function loadDailyCounts() {
   try {
     loading.value = true;
-    const [readResponse, savedResponse, countsResponse] = await Promise.all([
-      fetch(`${import.meta.env.VITE_API_URL}/reader/articles/daily-counts`),
-      fetch(`${import.meta.env.VITE_API_URL}/reader/later/daily-counts`),
-      fetch(`${import.meta.env.VITE_API_URL}/reader/counts`)
-    ]);
-
-    if (!readResponse.ok || !savedResponse.ok || !countsResponse.ok) {
-      throw new Error('Failed to fetch counts');
-    }
-
-    readCounts.value = await readResponse.json();
-    savedCounts.value = await savedResponse.json();
-    totalCounts.value = await countsResponse.json();
+    const data = await fetchDailyCounts();
+    readCounts.value = data.readCounts;
+    savedCounts.value = data.savedCounts;
+    totalCounts.value = data.totalCounts;
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load data';
     console.error('Error fetching counts:', err);
@@ -214,7 +206,7 @@ const combinedTableData = computed(() => {
 });
 
 onMounted(() => {
-  fetchDailyCounts();
+  loadDailyCounts();
 });
 </script>
 

@@ -225,7 +225,7 @@ function formatWordCount(count?: number): string {
           Suggested Articles for Later
         </h2>
         <p class="random-description">
-          Here are 5 random articles from your reading list that you might want to read next.
+          Here are 10 random articles from your reading list that you might want to read next.
         </p>
       </div>
 
