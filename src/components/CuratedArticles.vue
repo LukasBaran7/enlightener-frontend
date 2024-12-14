@@ -12,7 +12,9 @@ const curated = ref<CuratedData | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
-async function fetchCuratedArticles() {
+async function reloadCurated() {
+  loading.value = true;
+  error.value = null;
   try {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/reader/later/curated`);
     if (!response.ok) {
@@ -28,7 +30,7 @@ async function fetchCuratedArticles() {
 }
 
 onMounted(() => {
-  fetchCuratedArticles();
+  reloadCurated();
 });
 
 function formatDate(dateString: string): string {
@@ -42,6 +44,22 @@ function formatDate(dateString: string): string {
 
 <template>
   <div class="curated-articles">
+    <div class="curated-header">
+      <div class="header-content">
+        <h1>Curated For You</h1>
+        <button 
+          class="reload-button"
+          @click="reloadCurated"
+          :disabled="loading">
+          <span class="reload-icon">🔄</span>
+          Refresh Suggestions
+        </button>
+      </div>
+      <p class="header-description">
+        Personalized article suggestions based on your reading history
+      </p>
+    </div>
+
     <div v-if="loading" class="loading">
       Loading curated articles...
     </div>
@@ -311,6 +329,63 @@ function formatDate(dateString: string): string {
 
   .article-card {
     max-width: 100%;
+  }
+}
+
+.curated-header {
+  margin-bottom: 2rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.header-description {
+  color: var(--text-muted, #888);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.reload-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--button-bg, #646cff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.reload-button:hover {
+  background: var(--button-hover-bg, #535bf2);
+}
+
+.reload-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.reload-icon {
+  font-size: 1.1rem;
+}
+
+@media (max-width: 640px) {
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .reload-button {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style> 
