@@ -15,27 +15,32 @@ const activeTab = ref('articles')
     <div class="tabs">
       <button 
         :class="{ active: activeTab === 'podcasts' }"
-        @click="activeTab = 'podcasts'">
+        @click="activeTab = 'podcasts'"
+      >
         Podcast Episodes
       </button>
       <button 
         :class="{ active: activeTab === 'articles' }"
-        @click="activeTab = 'articles'">
+        @click="activeTab = 'articles'"
+      >
         Read Articles
       </button>
       <button 
         :class="{ active: activeTab === 'random' }"
-        @click="activeTab = 'random'">
+        @click="activeTab = 'random'"
+      >
         Read Later
       </button>
       <button 
         :class="{ active: activeTab === 'curated' }"
-        @click="activeTab = 'curated'">
+        @click="activeTab = 'curated'"
+      >
         For You
       </button>
       <button 
         :class="{ active: activeTab === 'stats' }"
-        @click="activeTab = 'stats'">
+        @click="activeTab = 'stats'"
+      >
         Reading Stats
       </button>
     </div>

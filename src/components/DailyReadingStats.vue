@@ -212,58 +212,103 @@ onMounted(() => {
 
 <template>
   <div class="daily-stats">
-    <h2 class="text-xl font-bold mb-4">Daily Reading Activity</h2>
+    <h2 class="text-xl font-bold mb-4">
+      Daily Reading Activity
+    </h2>
 
-    <div v-if="loading" class="loading">
+    <div
+      v-if="loading"
+      class="loading"
+    >
       Loading statistics...
     </div>
 
-    <div v-else-if="error" class="error">
+    <div
+      v-else-if="error"
+      class="error"
+    >
       {{ error }}
     </div>
 
     <template v-else>
       <div class="chart-container">
-        <Line :data="formattedData" :options="chartOptions" />
+        <Line
+          :data="formattedData"
+          :options="chartOptions"
+        />
       </div>
 
       <div class="stats-grid">
         <div class="stat-card">
-          <p class="label">Read Today</p>
-          <p class="value">{{ stats.readToday }}</p>
+          <p class="label">
+            Read Today
+          </p>
+          <p class="value">
+            {{ stats.readToday }}
+          </p>
         </div>
         <div class="stat-card">
-          <p class="label">Saved Today</p>
-          <p class="value">{{ stats.savedToday }}</p>
+          <p class="label">
+            Saved Today
+          </p>
+          <p class="value">
+            {{ stats.savedToday }}
+          </p>
         </div>
         <div class="stat-card">
-          <p class="label">Read Average</p>
-          <p class="value">{{ stats.readAverage }}</p>
+          <p class="label">
+            Read Average
+          </p>
+          <p class="value">
+            {{ stats.readAverage }}
+          </p>
         </div>
         <div class="stat-card">
-          <p class="label">Saved Average</p>
-          <p class="value">{{ stats.savedAverage }}</p>
+          <p class="label">
+            Saved Average
+          </p>
+          <p class="value">
+            {{ stats.savedAverage }}
+          </p>
         </div>
         <div class="stat-card">
-          <p class="label">Goals Met</p>
-          <p class="value">{{ stats.goalsMetCount }}</p>
+          <p class="label">
+            Goals Met
+          </p>
+          <p class="value">
+            {{ stats.goalsMetCount }}
+          </p>
         </div>
         <div class="stat-card">
-          <p class="label">Total Read</p>
-          <p class="value">{{ stats.readTotal }}</p>
+          <p class="label">
+            Total Read
+          </p>
+          <p class="value">
+            {{ stats.readTotal }}
+          </p>
         </div>
         <div class="stat-card total-stat">
-          <p class="label">Total Archive</p>
-          <p class="value">{{ totalCounts?.archived_count?.toLocaleString() || 0 }}</p>
+          <p class="label">
+            Total Archive
+          </p>
+          <p class="value">
+            {{ totalCounts?.archived_count?.toLocaleString() || 0 }}
+          </p>
         </div>
         <div class="stat-card total-stat">
-          <p class="label">Reading List</p>
-          <p class="value">{{ totalCounts?.later_count?.toLocaleString() || 0 }}</p>
+          <p class="label">
+            Reading List
+          </p>
+          <p class="value">
+            {{ totalCounts?.later_count?.toLocaleString() || 0 }}
+          </p>
         </div>
       </div>
 
       <div class="daily-breakdown">
-        <h3 class="text-lg font-semibold mb-3 mt-6">Daily Breakdown</h3>
+        <h3 class="text-lg font-semibold mb-3 mt-6">
+          Daily Breakdown
+        </h3>
         <div class="table-container">
           <table class="progress-table">
             <thead>
@@ -275,7 +320,10 @@ onMounted(() => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="day in tableData" :key="day.date">
+              <tr
+                v-for="day in tableData"
+                :key="day.date"
+              >
                 <td>{{ day.date }}</td>
                 <td>{{ day.count }}</td>
                 <td class="progress-cell">
@@ -284,12 +332,15 @@ onMounted(() => {
                       class="progress-bar-fill"
                       :style="{ width: `${Math.min(100, day.percentage)}%` }"
                       :class="{ 'goal-met': day.goalMet }"
-                    ></div>
+                    />
                   </div>
                   <span class="progress-text">{{ day.count }}/5</span>
                 </td>
                 <td>
-                  <div class="status-cell" :class="{ 'goal-met': day.goalMet }">
+                  <div
+                    class="status-cell"
+                    :class="{ 'goal-met': day.goalMet }"
+                  >
                     <template v-if="day.goalMet">
                       <span class="goal-icon">🎯</span>
                     </template>
@@ -312,7 +363,9 @@ onMounted(() => {
       </div>
 
       <div class="daily-breakdown">
-        <h3 class="text-lg font-semibold mb-3 mt-6">Read vs Saved Breakdown</h3>
+        <h3 class="text-lg font-semibold mb-3 mt-6">
+          Read vs Saved Breakdown
+        </h3>
         <div class="table-container">
           <table class="progress-table">
             <thead>
@@ -325,7 +378,10 @@ onMounted(() => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="day in combinedTableData" :key="day.date">
+              <tr
+                v-for="day in combinedTableData"
+                :key="day.date"
+              >
                 <td>{{ day.date }}</td>
                 <td>{{ day.readCount }}</td>
                 <td>{{ day.savedCount }}</td>
@@ -336,7 +392,7 @@ onMounted(() => {
                       'text-red-500': day.difference < 0
                     }"
                   >
-                    {{ day.difference > 0 ? '+' : ''}}{{ day.difference }}
+                    {{ day.difference > 0 ? '+' : '' }}{{ day.difference }}
                   </span>
                 </td>
                 <td>
@@ -349,7 +405,7 @@ onMounted(() => {
                         'bg-yellow-500': day.ratio > 50 && day.ratio < 100,
                         'bg-red-500': day.ratio <= 50
                       }"
-                    ></div>
+                    />
                     <span class="completion-text">{{ day.ratio }}%</span>
                   </div>
                 </td>
