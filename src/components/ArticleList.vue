@@ -98,7 +98,9 @@ const readingDistribution = computed(() => {
   };
 });
 
-onMounted(async () => {
+async function reloadArticles() {
+  loading.value = true;
+  error.value = null;
   try {
     if (props.mode === 'history') {
       articles.value = await fetchArticles();
@@ -113,6 +115,10 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
+}
+
+onMounted(() => {
+  reloadArticles();
 });
 
 function formatDate(dateString: string): string {
@@ -218,15 +224,26 @@ function formatWordCount(count?: number): string {
         </div>
       </div>
 
-      <!-- Show simple header for random mode -->
+      <!-- Show header with reload button for random mode -->
       <div v-else class="random-header">
-        <h2 class="section-title">
-          <span class="section-icon">🎲</span>
-          Suggested Articles for Later
-        </h2>
-        <p class="random-description">
-          Here are 10 random articles from your reading list that you might want to read next.
-        </p>
+        <div class="header-content">
+          <div>
+            <h2 class="section-title">
+              <span class="section-icon">🎲</span>
+              Suggested Articles for Later
+            </h2>
+            <p class="random-description">
+              Here are 10 random articles from your reading list that you might want to read next.
+            </p>
+          </div>
+          <button 
+            class="reload-button"
+            @click="reloadArticles"
+            :disabled="loading">
+            <span class="reload-icon">🔄</span>
+            Get New Suggestions
+          </button>
+        </div>
       </div>
 
       <!-- Regular articles section -->
@@ -768,5 +785,51 @@ function formatWordCount(count?: number): string {
 
 .article-link:hover .link-icon {
   opacity: 1;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.reload-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--button-bg, #646cff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.reload-button:hover {
+  background: var(--button-hover-bg, #535bf2);
+}
+
+.reload-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.reload-icon {
+  font-size: 1.1rem;
+}
+
+@media (max-width: 640px) {
+  .header-content {
+    flex-direction: column;
+  }
+  
+  .reload-button {
+    width: 100%;
+    justify-content: center;
+  }
 }
 </style> 
