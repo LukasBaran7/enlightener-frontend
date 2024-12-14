@@ -49,8 +49,9 @@ function formatDate(dateString: string): string {
         <h1>Curated For You</h1>
         <button 
           class="reload-button"
+          :disabled="loading"
           @click="reloadCurated"
-          :disabled="loading">
+        >
           <span class="reload-icon">🔄</span>
           Refresh Suggestions
         </button>
@@ -60,11 +61,17 @@ function formatDate(dateString: string): string {
       </p>
     </div>
 
-    <div v-if="loading" class="loading">
+    <div
+      v-if="loading"
+      class="loading"
+    >
       Loading curated articles...
     </div>
 
-    <div v-else-if="error" class="error">
+    <div
+      v-else-if="error"
+      class="error"
+    >
       {{ error }}
     </div>
 
@@ -75,30 +82,47 @@ function formatDate(dateString: string): string {
           <span class="section-icon">⚡</span>
           Quick Reads
         </h2>
-        <p class="section-description">Short articles you can read in under 10 minutes</p>
+        <p class="section-description">
+          Short articles you can read in under 10 minutes
+        </p>
         
         <div class="articles-grid">
-          <div v-for="article in curated.quick_reads" 
-               :key="article.id" 
-               class="article-card">
-            <img v-if="article.image_url" 
-                 :src="article.image_url" 
-                 :alt="article.title"
-                 class="article-image">
+          <div
+            v-for="article in curated.quick_reads" 
+            :key="article.id" 
+            class="article-card"
+          >
+            <img
+              v-if="article.image_url" 
+              :src="article.image_url" 
+              :alt="article.title"
+              class="article-image"
+            >
             <div class="article-content">
               <div class="article-meta">
                 <div class="source-info">
                   <span class="source">{{ article.site_name || article.source }}</span>
-                  <span v-if="article.author" class="author">
+                  <span
+                    v-if="article.author"
+                    class="author"
+                  >
                     by {{ article.author }}
                   </span>
                 </div>
                 <span class="word-count">{{ article.word_count.toLocaleString() }} words</span>
               </div>
               <h3 class="article-title">
-                <a :href="article.url" target="_blank">{{ article.title }}</a>
+                <a
+                  :href="article.url"
+                  target="_blank"
+                >{{ article.title }}</a>
               </h3>
-              <p v-if="article.summary" class="article-summary">{{ article.summary }}</p>
+              <p
+                v-if="article.summary"
+                class="article-summary"
+              >
+                {{ article.summary }}
+              </p>
               <div class="article-footer">
                 <time>Saved {{ formatDate(article.saved_at) }}</time>
               </div>
@@ -113,30 +137,47 @@ function formatDate(dateString: string): string {
           <span class="section-icon">📚</span>
           From Your Archives
         </h2>
-        <p class="section-description">Rediscover interesting articles from your past saves</p>
+        <p class="section-description">
+          Rediscover interesting articles from your past saves
+        </p>
         
         <div class="articles-grid">
-          <div v-for="article in curated.from_archives" 
-               :key="article.id" 
-               class="article-card">
-            <img v-if="article.image_url" 
-                 :src="article.image_url" 
-                 :alt="article.title"
-                 class="article-image">
+          <div
+            v-for="article in curated.from_archives" 
+            :key="article.id" 
+            class="article-card"
+          >
+            <img
+              v-if="article.image_url" 
+              :src="article.image_url" 
+              :alt="article.title"
+              class="article-image"
+            >
             <div class="article-content">
               <div class="article-meta">
                 <div class="source-info">
                   <span class="source">{{ article.site_name || article.source }}</span>
-                  <span v-if="article.author" class="author">
+                  <span
+                    v-if="article.author"
+                    class="author"
+                  >
                     by {{ article.author }}
                   </span>
                 </div>
                 <span class="word-count">{{ article.word_count.toLocaleString() }} words</span>
               </div>
               <h3 class="article-title">
-                <a :href="article.url" target="_blank">{{ article.title }}</a>
+                <a
+                  :href="article.url"
+                  target="_blank"
+                >{{ article.title }}</a>
               </h3>
-              <p v-if="article.summary" class="article-summary">{{ article.summary }}</p>
+              <p
+                v-if="article.summary"
+                class="article-summary"
+              >
+                {{ article.summary }}
+              </p>
               <div class="article-footer">
                 <time>Saved {{ formatDate(article.saved_at) }}</time>
               </div>
@@ -151,30 +192,47 @@ function formatDate(dateString: string): string {
           <span class="section-icon">⭐</span>
           From Your Favorite Sources
         </h2>
-        <p class="section-description">Latest articles from publications you frequently read</p>
+        <p class="section-description">
+          Latest articles from publications you frequently read
+        </p>
         
         <div class="articles-grid">
-          <div v-for="article in curated.favorite_sources" 
-               :key="article.id" 
-               class="article-card">
-            <img v-if="article.image_url" 
-                 :src="article.image_url" 
-                 :alt="article.title"
-                 class="article-image">
+          <div
+            v-for="article in curated.favorite_sources" 
+            :key="article.id" 
+            class="article-card"
+          >
+            <img
+              v-if="article.image_url" 
+              :src="article.image_url" 
+              :alt="article.title"
+              class="article-image"
+            >
             <div class="article-content">
               <div class="article-meta">
                 <div class="source-info">
                   <span class="source">{{ article.site_name || article.source }}</span>
-                  <span v-if="article.author" class="author">
+                  <span
+                    v-if="article.author"
+                    class="author"
+                  >
                     by {{ article.author }}
                   </span>
                 </div>
                 <span class="word-count">{{ article.word_count.toLocaleString() }} words</span>
               </div>
               <h3 class="article-title">
-                <a :href="article.url" target="_blank">{{ article.title }}</a>
+                <a
+                  :href="article.url"
+                  target="_blank"
+                >{{ article.title }}</a>
               </h3>
-              <p v-if="article.summary" class="article-summary">{{ article.summary }}</p>
+              <p
+                v-if="article.summary"
+                class="article-summary"
+              >
+                {{ article.summary }}
+              </p>
               <div class="article-footer">
                 <time>Saved {{ formatDate(article.saved_at) }}</time>
               </div>

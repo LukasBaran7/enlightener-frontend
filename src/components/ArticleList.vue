@@ -139,58 +139,92 @@ function formatWordCount(count?: number): string {
 
 <template>
   <div class="article-list">
-    <div v-if="loading" class="loading">
+    <div
+      v-if="loading"
+      class="loading"
+    >
       <p>Loading articles...</p>
     </div>
     
-    <div v-else-if="error" class="error">
+    <div
+      v-else-if="error"
+      class="error"
+    >
       <p>{{ error }}</p>
     </div>
     
     <template v-else>
       <!-- Show stats grid only in history mode -->
-      <div v-if="mode === 'history'" class="stats-grid">
+      <div
+        v-if="mode === 'history'"
+        class="stats-grid"
+      >
         <div class="stat-card">
           <span class="summary-icon">📚</span>
           <div class="stat-content">
-            <div class="stat-value">{{ articlesCount }}</div>
-            <div class="stat-label">article{{ articlesCount === 1 ? '' : 's' }} this week</div>
+            <div class="stat-value">
+              {{ articlesCount }}
+            </div>
+            <div class="stat-label">
+              article{{ articlesCount === 1 ? '' : 's' }} this week
+            </div>
           </div>
         </div>
 
         <div class="stat-card">
           <span class="summary-icon">📝</span>
           <div class="stat-content">
-            <div class="stat-value">{{ totalWordsRead.toLocaleString() }}</div>
-            <div class="stat-label">words read</div>
+            <div class="stat-value">
+              {{ totalWordsRead.toLocaleString() }}
+            </div>
+            <div class="stat-label">
+              words read
+            </div>
           </div>
         </div>
 
-        <div v-if="sourceStats.count > 1" class="stat-card">
+        <div
+          v-if="sourceStats.count > 1"
+          class="stat-card"
+        >
           <span class="summary-icon">📰</span>
           <div class="stat-content">
-            <div class="stat-value">{{ sourceStats.name }}</div>
+            <div class="stat-value">
+              {{ sourceStats.name }}
+            </div>
             <div class="stat-label">
               your favorite source ({{ sourceStats.count }} articles)
             </div>
           </div>
         </div>
 
-        <div v-if="authorStats.count > 1" class="stat-card">
+        <div
+          v-if="authorStats.count > 1"
+          class="stat-card"
+        >
           <span class="summary-icon">✍️</span>
           <div class="stat-content">
-            <div class="stat-value">{{ authorStats.name }}</div>
+            <div class="stat-value">
+              {{ authorStats.name }}
+            </div>
             <div class="stat-label">
               your favorite author ({{ authorStats.count }} articles)
             </div>
           </div>
         </div>
 
-        <div v-if="newsletterCount > 0" class="stat-card">
+        <div
+          v-if="newsletterCount > 0"
+          class="stat-card"
+        >
           <span class="summary-icon">📧</span>
           <div class="stat-content">
-            <div class="stat-value">{{ newsletterCount }}</div>
-            <div class="stat-label">newsletter{{ newsletterCount === 1 ? '' : 's' }} read</div>
+            <div class="stat-value">
+              {{ newsletterCount }}
+            </div>
+            <div class="stat-label">
+              newsletter{{ newsletterCount === 1 ? '' : 's' }} read
+            </div>
           </div>
         </div>
 
@@ -198,7 +232,9 @@ function formatWordCount(count?: number): string {
           <div class="stat-header">
             <span class="summary-icon">📅</span>
             <div class="stat-content">
-              <div class="stat-value">{{ readingDistribution.busiest.dayName }}</div>
+              <div class="stat-value">
+                {{ readingDistribution.busiest.dayName }}
+              </div>
               <div class="stat-label">
                 your most active reading day
               </div>
@@ -206,17 +242,26 @@ function formatWordCount(count?: number): string {
           </div>
           
           <div class="distribution-chart">
-            <div v-for="day in readingDistribution.stats" 
-                 :key="day.dayName" 
-                 class="day-bar">
-              <div class="bar-label">{{ day.dayName.slice(0, 3) }}</div>
+            <div
+              v-for="day in readingDistribution.stats" 
+              :key="day.dayName" 
+              class="day-bar"
+            >
+              <div class="bar-label">
+                {{ day.dayName.slice(0, 3) }}
+              </div>
               <div class="bar-wrapper">
-                <div class="bar" 
-                     :style="{ 
-                       width: day.count ? `${(day.count / readingDistribution.maxCount) * 100}%` : '0%',
-                       opacity: day.count ? 1 : 0.3
-                     }">
-                  <span class="bar-value" v-if="day.count">{{ day.count }}</span>
+                <div
+                  class="bar" 
+                  :style="{ 
+                    width: day.count ? `${(day.count / readingDistribution.maxCount) * 100}%` : '0%',
+                    opacity: day.count ? 1 : 0.3
+                  }"
+                >
+                  <span
+                    v-if="day.count"
+                    class="bar-value"
+                  >{{ day.count }}</span>
                 </div>
               </div>
             </div>
@@ -225,7 +270,10 @@ function formatWordCount(count?: number): string {
       </div>
 
       <!-- Show header with reload button for random mode -->
-      <div v-else class="random-header">
+      <div
+        v-else
+        class="random-header"
+      >
         <div class="header-content">
           <div>
             <h2 class="section-title">
@@ -238,8 +286,9 @@ function formatWordCount(count?: number): string {
           </div>
           <button 
             class="reload-button"
+            :disabled="loading"
             @click="reloadArticles"
-            :disabled="loading">
+          >
             <span class="reload-icon">🔄</span>
             Get New Suggestions
           </button>
@@ -247,15 +296,23 @@ function formatWordCount(count?: number): string {
       </div>
 
       <!-- Regular articles section -->
-      <div v-if="regularArticles.length > 0" class="article-section">
-        <h2 v-if="mode === 'history'" class="section-title">
+      <div
+        v-if="regularArticles.length > 0"
+        class="article-section"
+      >
+        <h2
+          v-if="mode === 'history'"
+          class="section-title"
+        >
           <span class="section-icon">📚</span>
           Saved Articles
         </h2>
         
-        <div v-for="article in regularArticles" 
-             :key="article.id" 
-             class="article-item">
+        <div
+          v-for="article in regularArticles" 
+          :key="article.id" 
+          class="article-item"
+        >
           <div class="article-content">
             <div class="article-header">
               <div class="article-text">
@@ -263,24 +320,36 @@ function formatWordCount(count?: number): string {
                   <span class="source">
                     {{ article.site_name || article.source }}
                   </span>
-                  <span v-if="article.author" class="author">
+                  <span
+                    v-if="article.author"
+                    class="author"
+                  >
                     by {{ article.author }}
                   </span>
                 </div>
                 <h3>
-                  <a :href="article.url" target="_blank" class="article-link">
+                  <a
+                    :href="article.url"
+                    target="_blank"
+                    class="article-link"
+                  >
                     {{ article.title }}
                     <span class="link-icon">📄</span>
                   </a>
                 </h3>
               </div>
-              <img v-if="article.image_url" 
-                   :src="article.image_url" 
-                   :alt="article.title"
-                   class="thumbnail">
+              <img
+                v-if="article.image_url" 
+                :src="article.image_url" 
+                :alt="article.title"
+                class="thumbnail"
+              >
             </div>
             
-            <p v-if="article.summary" class="summary">
+            <p
+              v-if="article.summary"
+              class="summary"
+            >
               {{ article.summary }}
             </p>
             
@@ -290,7 +359,10 @@ function formatWordCount(count?: number): string {
                 <time>Read {{ formatDate(article.updated_at) }}</time>
               </div>
               <div class="stats">
-                <span v-if="article.word_count" class="word-count">
+                <span
+                  v-if="article.word_count"
+                  class="word-count"
+                >
                   {{ formatWordCount(article.word_count) }}
                 </span>
                 <a 
@@ -298,7 +370,8 @@ function formatWordCount(count?: number): string {
                   :href="article.source_url" 
                   target="_blank" 
                   class="source-link"
-                  title="Visit original source">
+                  title="Visit original source"
+                >
                   Original Source
                   <span class="link-icon">🔗</span>
                 </a>
@@ -309,14 +382,19 @@ function formatWordCount(count?: number): string {
       </div>
 
       <!-- Newsletter articles section -->
-      <div v-if="mode === 'history' && newsletterArticles.length > 0" class="article-section">
+      <div
+        v-if="mode === 'history' && newsletterArticles.length > 0"
+        class="article-section"
+      >
         <h2 class="section-title">
           <span class="section-icon">📧</span>
           Newsletters
         </h2>
-        <div v-for="article in newsletterArticles" 
-             :key="article.id" 
-             class="article-item newsletter">
+        <div
+          v-for="article in newsletterArticles" 
+          :key="article.id" 
+          class="article-item newsletter"
+        >
           <div class="article-content">
             <div class="article-header">
               <div class="article-text">
@@ -324,24 +402,36 @@ function formatWordCount(count?: number): string {
                   <span class="source">
                     {{ article.site_name || article.source }}
                   </span>
-                  <span v-if="article.author" class="author">
+                  <span
+                    v-if="article.author"
+                    class="author"
+                  >
                     by {{ article.author }}
                   </span>
                 </div>
                 <h3>
-                  <a :href="article.url" target="_blank" class="article-link">
+                  <a
+                    :href="article.url"
+                    target="_blank"
+                    class="article-link"
+                  >
                     {{ article.title }}
                     <span class="link-icon">📄</span>
                   </a>
                 </h3>
               </div>
-              <img v-if="article.image_url" 
-                   :src="article.image_url" 
-                   :alt="article.title"
-                   class="thumbnail">
+              <img
+                v-if="article.image_url" 
+                :src="article.image_url" 
+                :alt="article.title"
+                class="thumbnail"
+              >
             </div>
             
-            <p v-if="article.summary" class="summary">
+            <p
+              v-if="article.summary"
+              class="summary"
+            >
               {{ article.summary }}
             </p>
             
@@ -351,7 +441,10 @@ function formatWordCount(count?: number): string {
                 <time>Read {{ formatDate(article.updated_at) }}</time>
               </div>
               <div class="stats">
-                <span v-if="article.word_count" class="word-count">
+                <span
+                  v-if="article.word_count"
+                  class="word-count"
+                >
                   {{ formatWordCount(article.word_count) }}
                 </span>
                 <a 
@@ -359,7 +452,8 @@ function formatWordCount(count?: number): string {
                   :href="article.source_url" 
                   target="_blank" 
                   class="source-link"
-                  title="Visit original source">
+                  title="Visit original source"
+                >
                   Original Source
                   <span class="link-icon">🔗</span>
                 </a>

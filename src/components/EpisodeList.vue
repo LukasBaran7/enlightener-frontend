@@ -31,28 +31,42 @@ function formatDate(dateString: string): string {
 
 <template>
   <div class="episode-list">
-    <div v-if="loading" class="loading">
+    <div
+      v-if="loading"
+      class="loading"
+    >
       <p>Loading episodes...</p>
     </div>
     
-    <div v-else-if="error" class="error">
+    <div
+      v-else-if="error"
+      class="error"
+    >
       <p>{{ error }}</p>
     </div>
     
     <template v-else>
-      <div v-for="podcast in podcasts" :key="podcast.podcastTitle" class="podcast-group">
+      <div
+        v-for="podcast in podcasts"
+        :key="podcast.podcastTitle"
+        class="podcast-group"
+      >
         <div class="podcast-header">
           <img 
             :src="podcast.artworkUrl || '/path/to/default-image.png'" 
             :alt="podcast.podcastTitle" 
             class="podcast-artwork"
           >
-          <h2 class="podcast-title">{{ podcast.podcastTitle }}</h2>
+          <h2 class="podcast-title">
+            {{ podcast.podcastTitle }}
+          </h2>
         </div>
         
-        <div v-for="episode in podcast.episodes" 
-             :key="episode.overcastId" 
-             class="episode-item">
+        <div
+          v-for="episode in podcast.episodes" 
+          :key="episode.overcastId" 
+          class="episode-item"
+        >
           <h3>{{ episode.episodeTitle }}</h3>
           <div class="episode-meta">
             <time>{{ formatDate(episode.publishedDate) }}</time>
@@ -64,12 +78,22 @@ function formatDate(dateString: string): string {
               </div>
             </div>
           </div>
-          <p class="summary">{{ episode.summary }}</p>
+          <p class="summary">
+            {{ episode.summary }}
+          </p>
           <div class="episode-links">
-            <a :href="episode.audioUrl" target="_blank" class="link-button">
+            <a
+              :href="episode.audioUrl"
+              target="_blank"
+              class="link-button"
+            >
               <span>🎧</span> Listen
             </a>
-            <a :href="episode.overcastUrl" target="_blank" class="link-button">
+            <a
+              :href="episode.overcastUrl"
+              target="_blank"
+              class="link-button"
+            >
               <span>📱</span> Open in Overcast
             </a>
           </div>
