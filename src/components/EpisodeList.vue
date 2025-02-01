@@ -71,17 +71,17 @@ function formatDate(dateString: string): string {
     <div class="view-controls">
       <label class="switch">
         <input 
-          type="checkbox" 
-          v-model="groupByDate"
+          v-model="groupByDate" 
+          type="checkbox"
         >
-        <span class="slider"></span>
+        <span class="slider" />
         <span class="label">{{ groupByDate ? 'Grouped by Date' : 'Grouped by Podcast' }}</span>
       </label>
       
       <button 
         class="sort-button" 
-        @click="sortAscending = !sortAscending"
         :title="sortAscending ? 'Showing oldest first' : 'Showing newest first'"
+        @click="sortAscending = !sortAscending"
       >
         <span class="sort-icon">{{ sortAscending ? '↑' : '↓' }}</span>
         {{ sortAscending ? 'Oldest First' : 'Newest First' }}
@@ -109,7 +109,9 @@ function formatDate(dateString: string): string {
           :key="date"
           class="date-group"
         >
-          <h2 class="date-header">{{ date }}</h2>
+          <h2 class="date-header">
+            {{ date }}
+          </h2>
           
           <div
             v-for="{ episode, podcast } in episodes"
@@ -123,8 +125,12 @@ function formatDate(dateString: string): string {
                 class="podcast-artwork"
               >
               <div class="episode-titles">
-                <h3 class="podcast-name">{{ podcast.podcastTitle }}</h3>
-                <h4 class="episode-title">{{ episode.episodeTitle }}</h4>
+                <h3 class="podcast-name">
+                  {{ podcast.podcastTitle }}
+                </h3>
+                <h4 class="episode-title">
+                  {{ episode.episodeTitle }}
+                </h4>
               </div>
             </div>
 
@@ -135,7 +141,9 @@ function formatDate(dateString: string): string {
               </div>
             </div>
 
-            <p class="summary">{{ episode.summary }}</p>
+            <p class="summary">
+              {{ episode.summary }}
+            </p>
 
             <div class="episode-links">
               <a

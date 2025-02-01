@@ -30,4 +30,18 @@ export async function fetchRandomArticles(): Promise<Article[]> {
     console.error('Error fetching random articles:', error);
     throw error;
   }
+}
+
+export async function archiveArticle(articleId: string): Promise<void> {
+  try {
+    const response = await fetch(`${BASE_API_URL}/articles/${articleId}/archive`, {
+      method: 'POST',
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error archiving article:', error);
+    throw error;
+  }
 } 

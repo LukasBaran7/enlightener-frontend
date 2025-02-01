@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import type { Article } from '../types/Article';
+import { archiveArticle } from '../api/articles';
+import ToastNotification from './ToastNotification.vue';
 
 interface CuratedData {
   quick_reads: Article[];
@@ -11,6 +13,9 @@ interface CuratedData {
 const curated = ref<CuratedData | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
+const showToast = ref(false);
+const toastMessage = ref('');
+const toastType = ref<'success' | 'error'>('success');
 
 async function reloadCurated() {
   loading.value = true;
@@ -21,11 +26,38 @@ async function reloadCurated() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     curated.value = await response.json();
+    toastMessage.value = 'Suggestions refreshed successfully';
+    toastType.value = 'success';
+    showToast.value = true;
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load curated articles';
+    toastMessage.value = 'Failed to refresh suggestions';
+    toastType.value = 'error';
+    showToast.value = true;
     console.error('Error fetching curated articles:', err);
   } finally {
     loading.value = false;
+  }
+}
+
+async function handleArchive(articleId: string, section: keyof CuratedData) {
+  try {
+    await archiveArticle(articleId);
+    if (curated.value) {
+      curated.value[section] = curated.value[section].filter(
+        article => article.id !== articleId
+      );
+    }
+    toastMessage.value = 'Article archived successfully';
+    toastType.value = 'success';
+    showToast.value = true;
+  } catch (e) {
+    toastMessage.value = e instanceof Error 
+      ? e.message 
+      : 'Failed to archive article. Please try again later.';
+    toastType.value = 'error';
+    showToast.value = true;
+    console.error('Archive error:', e);
   }
 }
 
@@ -124,7 +156,19 @@ function formatDate(dateString: string): string {
                 {{ article.summary }}
               </p>
               <div class="article-footer">
-                <time>Saved {{ formatDate(article.saved_at) }}</time>
+                <div class="footer-left">
+                  <time>Saved {{ formatDate(article.saved_at) }}</time>
+                </div>
+                <div class="footer-right">
+                  <button 
+                    class="archive-button"
+                    title="Archive this article"
+                    @click="handleArchive(article.id, 'quick_reads')"
+                  >
+                    <span class="archive-icon">📥</span>
+                    Archive
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -179,7 +223,19 @@ function formatDate(dateString: string): string {
                 {{ article.summary }}
               </p>
               <div class="article-footer">
-                <time>Saved {{ formatDate(article.saved_at) }}</time>
+                <div class="footer-left">
+                  <time>Saved {{ formatDate(article.saved_at) }}</time>
+                </div>
+                <div class="footer-right">
+                  <button 
+                    class="archive-button"
+                    title="Archive this article"
+                    @click="handleArchive(article.id, 'from_archives')"
+                  >
+                    <span class="archive-icon">📥</span>
+                    Archive
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -234,13 +290,32 @@ function formatDate(dateString: string): string {
                 {{ article.summary }}
               </p>
               <div class="article-footer">
-                <time>Saved {{ formatDate(article.saved_at) }}</time>
+                <div class="footer-left">
+                  <time>Saved {{ formatDate(article.saved_at) }}</time>
+                </div>
+                <div class="footer-right">
+                  <button 
+                    class="archive-button"
+                    title="Archive this article"
+                    @click="handleArchive(article.id, 'favorite_sources')"
+                  >
+                    <span class="archive-icon">📥</span>
+                    Archive
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
     </template>
+
+    <ToastNotification
+      v-if="showToast"
+      :message="toastMessage"
+      :type="toastType"
+      @hide="showToast = false"
+    />
   </div>
 </template>
 
@@ -376,8 +451,42 @@ function formatDate(dateString: string): string {
 }
 
 .article-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-left {
   color: var(--text-muted, #888);
   font-size: 0.9rem;
+}
+
+.archive-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: var(--button-bg, #646cff);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.archive-button:hover {
+  background: var(--button-hover-bg, #535bf2);
+}
+
+.archive-button:active {
+  transform: scale(0.98);
+}
+
+.archive-icon {
+  font-size: 1rem;
+  opacity: 0.9;
 }
 
 @media (max-width: 640px) {

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import type { Article, DayStats } from '../types/Article';
-import { fetchArticles, fetchRandomArticles } from '../api/articles';
+import { fetchArticles, fetchRandomArticles, archiveArticle } from '../api/articles';
+import ToastNotification from './ToastNotification.vue';
 
 const props = defineProps<{
   mode: 'history' | 'random'
@@ -10,6 +11,9 @@ const props = defineProps<{
 const articles = ref<Article[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
+const showToast = ref(false);
+const toastMessage = ref('');
+const toastType = ref<'success' | 'error'>('success');
 
 const isNewsletter = (article: Article) => 
   article.source_url?.includes('mailto:reader-forwarded-email');
@@ -106,14 +110,37 @@ async function reloadArticles() {
       articles.value = await fetchArticles();
     } else {
       articles.value = await fetchRandomArticles();
+      toastMessage.value = 'New suggestions loaded successfully';
+      toastType.value = 'success';
+      showToast.value = true;
     }
   } catch (e) {
     error.value = e instanceof Error 
       ? e.message 
       : 'Failed to load articles. Please try again later.';
+    toastMessage.value = 'Failed to load new suggestions';
+    toastType.value = 'error';
+    showToast.value = true;
     console.error('Article fetch error:', e);
   } finally {
     loading.value = false;
+  }
+}
+
+async function handleArchive(articleId: string) {
+  try {
+    await archiveArticle(articleId);
+    articles.value = articles.value.filter(article => article.id !== articleId);
+    toastMessage.value = 'Article archived successfully';
+    toastType.value = 'success';
+    showToast.value = true;
+  } catch (e) {
+    toastMessage.value = e instanceof Error 
+      ? e.message 
+      : 'Failed to archive article. Please try again later.';
+    toastType.value = 'error';
+    showToast.value = true;
+    console.error('Archive error:', e);
   }
 }
 
@@ -230,7 +257,7 @@ function formatWordCount(count?: number): string {
 
         <div class="stat-card distribution-card">
           <div class="stat-header">
-            <span class="summary-icon">📅</span>
+            <span class="summary-icon">��</span>
             <div class="stat-content">
               <div class="stat-value">
                 {{ readingDistribution.busiest.dayName }}
@@ -375,6 +402,14 @@ function formatWordCount(count?: number): string {
                   Original Source
                   <span class="link-icon">🔗</span>
                 </a>
+                <button 
+                  class="archive-button"
+                  title="Archive this article"
+                  @click="handleArchive(article.id)"
+                >
+                  <span class="archive-icon">📥</span>
+                  Archive
+                </button>
               </div>
             </div>
           </div>
@@ -457,12 +492,26 @@ function formatWordCount(count?: number): string {
                   Original Source
                   <span class="link-icon">🔗</span>
                 </a>
+                <button 
+                  class="archive-button"
+                  title="Archive this article"
+                  @click="handleArchive(article.id)"
+                >
+                  <span class="archive-icon">📥</span>
+                  Archive
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </template>
+    <ToastNotification
+      v-if="showToast"
+      :message="toastMessage"
+      :type="toastType"
+      @hide="showToast = false"
+    />
   </div>
 </template>
 
@@ -925,5 +974,33 @@ function formatWordCount(count?: number): string {
     width: 100%;
     justify-content: center;
   }
+}
+
+.archive-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: var(--button-bg, #646cff);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.archive-button:hover {
+  background: var(--button-hover-bg, #535bf2);
+}
+
+.archive-button:active {
+  transform: scale(0.98);
+}
+
+.archive-icon {
+  font-size: 1rem;
+  opacity: 0.9;
 }
 </style> 
