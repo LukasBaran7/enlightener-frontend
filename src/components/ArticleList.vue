@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import type { Article, DayStats } from '../types/Article';
-import { fetchArticles, fetchRandomArticles, archiveArticle } from '../api/articles';
+import { fetchArticles, fetchRandomArticles, archiveArticle, shortlistArticle } from '../api/articles';
 import ToastNotification from './ToastNotification.vue';
 
 const props = defineProps<{
@@ -141,6 +141,26 @@ async function handleArchive(articleId: string) {
     toastType.value = 'error';
     showToast.value = true;
     console.error('Archive error:', e);
+  }
+}
+
+async function handleShortlist(articleId: string) {
+  try {
+    await shortlistArticle(articleId);
+    const article = articles.value.find(a => a.id === articleId);
+    if (article) {
+      article.shortlisted = true;
+    }
+    toastMessage.value = 'Article shortlisted successfully';
+    toastType.value = 'success';
+    showToast.value = true;
+  } catch (e) {
+    toastMessage.value = e instanceof Error 
+      ? e.message 
+      : 'Failed to shortlist article. Please try again later.';
+    toastType.value = 'error';
+    showToast.value = true;
+    console.error('Shortlist error:', e);
   }
 }
 
@@ -339,6 +359,7 @@ function formatWordCount(count?: number): string {
           v-for="article in regularArticles" 
           :key="article.id" 
           class="article-item"
+          :class="{ shortlisted: article.shortlisted }"
         >
           <div class="article-content">
             <div class="article-header">
@@ -402,6 +423,14 @@ function formatWordCount(count?: number): string {
                   Original Source
                   <span class="link-icon">🔗</span>
                 </a>
+                <button 
+                  class="shortlist-button"
+                  title="Shortlist this article"
+                  @click="handleShortlist(article.id)"
+                >
+                  <span class="shortlist-icon">⭐</span>
+                  Shortlist
+                </button>
                 <button 
                   class="archive-button"
                   title="Archive this article"
@@ -492,6 +521,14 @@ function formatWordCount(count?: number): string {
                   Original Source
                   <span class="link-icon">🔗</span>
                 </a>
+                <button 
+                  class="shortlist-button"
+                  title="Shortlist this article"
+                  @click="handleShortlist(article.id)"
+                >
+                  <span class="shortlist-icon">⭐</span>
+                  Shortlist
+                </button>
                 <button 
                   class="archive-button"
                   title="Archive this article"
@@ -1002,5 +1039,52 @@ function formatWordCount(count?: number): string {
 .archive-icon {
   font-size: 1rem;
   opacity: 0.9;
+}
+
+.shortlist-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: var(--button-secondary-bg, #4a4a4a);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shortlist-button:hover {
+  background: var(--button-secondary-hover-bg, #5a5a5a);
+}
+
+.shortlist-button:active {
+  transform: scale(0.98);
+}
+
+.shortlist-icon {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.article-item.shortlisted {
+  border: 2px solid var(--shortlist-color, #ffd700);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
+}
+
+.article-item.shortlisted .shortlist-button {
+  background: var(--shortlist-color, #ffd700);
+  color: #000000;
+}
+
+.article-item.shortlisted .shortlist-button:hover {
+  background: var(--shortlist-hover-color, #ffed4a);
+}
+
+.article-item.shortlisted .shortlist-icon {
+  font-size: 1.2rem;
+  opacity: 1;
 }
 </style> 

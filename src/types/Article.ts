@@ -24,6 +24,7 @@ export interface Article {
   last_opened_at: string | null;
   saved_at: string;
   last_moved_at: string;
+  shortlisted?: boolean;
 }
 
 // Add helper type for reading distribution

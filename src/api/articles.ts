@@ -44,4 +44,18 @@ export async function archiveArticle(articleId: string): Promise<void> {
     console.error('Error archiving article:', error);
     throw error;
   }
+}
+
+export async function shortlistArticle(articleId: string): Promise<void> {
+  try {
+    const response = await fetch(`${BASE_API_URL}/articles/${articleId}/shortlist`, {
+      method: 'POST',
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error shortlisting article:', error);
+    throw error;
+  }
 } 
