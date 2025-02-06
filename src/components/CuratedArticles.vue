@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import type { Article } from '../types/Article';
-import { archiveArticle } from '../api/articles';
+import { archiveArticle, shortlistArticle } from '../api/articles';
 import ToastNotification from './ToastNotification.vue';
 
 interface CuratedData {
@@ -58,6 +58,28 @@ async function handleArchive(articleId: string, section: keyof CuratedData) {
     toastType.value = 'error';
     showToast.value = true;
     console.error('Archive error:', e);
+  }
+}
+
+async function handleShortlist(articleId: string, section: keyof CuratedData) {
+  try {
+    await shortlistArticle(articleId);
+    if (curated.value) {
+      const article = curated.value[section].find(a => a.id === articleId);
+      if (article) {
+        article.shortlisted = true;
+      }
+    }
+    toastMessage.value = 'Article shortlisted successfully';
+    toastType.value = 'success';
+    showToast.value = true;
+  } catch (e) {
+    toastMessage.value = e instanceof Error 
+      ? e.message 
+      : 'Failed to shortlist article. Please try again later.';
+    toastType.value = 'error';
+    showToast.value = true;
+    console.error('Shortlist error:', e);
   }
 }
 
@@ -123,6 +145,7 @@ function formatDate(dateString: string): string {
             v-for="article in curated.quick_reads" 
             :key="article.id" 
             class="article-card"
+            :class="{ shortlisted: article.shortlisted }"
           >
             <img
               v-if="article.image_url" 
@@ -160,6 +183,14 @@ function formatDate(dateString: string): string {
                   <time>Saved {{ formatDate(article.saved_at) }}</time>
                 </div>
                 <div class="footer-right">
+                  <button 
+                    class="shortlist-button"
+                    title="Shortlist this article"
+                    @click="handleShortlist(article.id, 'quick_reads')"
+                  >
+                    <span class="shortlist-icon">⭐</span>
+                    Shortlist
+                  </button>
                   <button 
                     class="archive-button"
                     title="Archive this article"
@@ -190,6 +221,7 @@ function formatDate(dateString: string): string {
             v-for="article in curated.from_archives" 
             :key="article.id" 
             class="article-card"
+            :class="{ shortlisted: article.shortlisted }"
           >
             <img
               v-if="article.image_url" 
@@ -228,6 +260,14 @@ function formatDate(dateString: string): string {
                 </div>
                 <div class="footer-right">
                   <button 
+                    class="shortlist-button"
+                    title="Shortlist this article"
+                    @click="handleShortlist(article.id, 'from_archives')"
+                  >
+                    <span class="shortlist-icon">⭐</span>
+                    Shortlist
+                  </button>
+                  <button 
                     class="archive-button"
                     title="Archive this article"
                     @click="handleArchive(article.id, 'from_archives')"
@@ -257,6 +297,7 @@ function formatDate(dateString: string): string {
             v-for="article in curated.favorite_sources" 
             :key="article.id" 
             class="article-card"
+            :class="{ shortlisted: article.shortlisted }"
           >
             <img
               v-if="article.image_url" 
@@ -294,6 +335,14 @@ function formatDate(dateString: string): string {
                   <time>Saved {{ formatDate(article.saved_at) }}</time>
                 </div>
                 <div class="footer-right">
+                  <button 
+                    class="shortlist-button"
+                    title="Shortlist this article"
+                    @click="handleShortlist(article.id, 'favorite_sources')"
+                  >
+                    <span class="shortlist-icon">⭐</span>
+                    Shortlist
+                  </button>
                   <button 
                     class="archive-button"
                     title="Archive this article"
@@ -489,6 +538,39 @@ function formatDate(dateString: string): string {
   opacity: 0.9;
 }
 
+.shortlist-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: var(--button-secondary-bg, #4a4a4a);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shortlist-button:hover {
+  background: var(--button-secondary-hover-bg, #5a5a5a);
+}
+
+.shortlist-button:active {
+  transform: scale(0.98);
+}
+
+.shortlist-icon {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.footer-right {
+  display: flex;
+  gap: 0.5rem;
+}
+
 @media (max-width: 640px) {
   .articles-grid {
     grid-template-columns: 1fr;
@@ -554,5 +636,24 @@ function formatDate(dateString: string): string {
     width: 100%;
     justify-content: center;
   }
+}
+
+.article-card.shortlisted {
+  border: 2px solid var(--shortlist-color, #ffd700);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
+}
+
+.article-card.shortlisted .shortlist-button {
+  background: var(--shortlist-color, #ffd700);
+  color: #000000;
+}
+
+.article-card.shortlisted .shortlist-button:hover {
+  background: var(--shortlist-hover-color, #ffed4a);
+}
+
+.article-card.shortlisted .shortlist-icon {
+  font-size: 1.2rem;
+  opacity: 1;
 }
 </style> 
