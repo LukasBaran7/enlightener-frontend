@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import type { Article, DayStats } from '../types/Article';
 import { fetchArticles, fetchRandomArticles, archiveArticle, shortlistArticle } from '../api/articles';
 import ToastNotification from './ToastNotification.vue';
+import { calculateReadingTime } from '../types/Article';
 
 const props = defineProps<{
   mode: 'history' | 'random'
@@ -101,6 +102,8 @@ const readingDistribution = computed(() => {
     busiest
   };
 });
+
+const isReadLaterMode = computed(() => props.mode === 'random');
 
 async function reloadArticles() {
   loading.value = true;
@@ -404,15 +407,11 @@ function formatWordCount(count?: number): string {
             <div class="article-meta">
               <div class="reading-info">
                 <time>Saved {{ formatDate(article.saved_at) }}</time>
-                <time>Read {{ formatDate(article.updated_at) }}</time>
+                <time>{{ isReadLaterMode ? 'Moved' : 'Read' }} {{ formatDate(article.updated_at) }}</time>
               </div>
               <div class="stats">
-                <span
-                  v-if="article.word_count"
-                  class="word-count"
-                >
-                  {{ formatWordCount(article.word_count) }}
-                </span>
+                <span class="reading-time">{{ calculateReadingTime(article.word_count) }}</span>
+                <span class="word-count">{{ formatWordCount(article.word_count) }}</span>
                 <a 
                   v-if="article.source_url" 
                   :href="article.source_url" 
@@ -502,15 +501,11 @@ function formatWordCount(count?: number): string {
             <div class="article-meta">
               <div class="reading-info">
                 <time>Saved {{ formatDate(article.saved_at) }}</time>
-                <time>Read {{ formatDate(article.updated_at) }}</time>
+                <time>{{ isReadLaterMode ? 'Moved' : 'Read' }} {{ formatDate(article.updated_at) }}</time>
               </div>
               <div class="stats">
-                <span
-                  v-if="article.word_count"
-                  class="word-count"
-                >
-                  {{ formatWordCount(article.word_count) }}
-                </span>
+                <span class="reading-time">{{ calculateReadingTime(article.word_count) }}</span>
+                <span class="word-count">{{ formatWordCount(article.word_count) }}</span>
                 <a 
                   v-if="article.source_url" 
                   :href="article.source_url" 
@@ -1086,5 +1081,19 @@ function formatWordCount(count?: number): string {
 .article-item.shortlisted .shortlist-icon {
   font-size: 1.2rem;
   opacity: 1;
+}
+
+.reading-time {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--text-muted, #888);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.reading-time::before {
+  content: "⏱️";
+  font-size: 1rem;
 }
 </style> 

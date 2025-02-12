@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import type { Article } from '../types/Article';
 import { archiveArticle, shortlistArticle } from '../api/articles';
 import ToastNotification from './ToastNotification.vue';
+import { calculateReadingTime } from '../types/Article';
 
 interface CuratedData {
   quick_reads: Article[];
@@ -164,7 +165,10 @@ function formatDate(dateString: string): string {
                     by {{ article.author }}
                   </span>
                 </div>
-                <span class="word-count">{{ article.word_count.toLocaleString() }} words</span>
+                <div class="meta-right">
+                  <span class="reading-time">{{ calculateReadingTime(article.word_count) }}</span>
+                  <span class="word-count">{{ article.word_count.toLocaleString() }} words</span>
+                </div>
               </div>
               <h3 class="article-title">
                 <a
@@ -240,7 +244,10 @@ function formatDate(dateString: string): string {
                     by {{ article.author }}
                   </span>
                 </div>
-                <span class="word-count">{{ article.word_count.toLocaleString() }} words</span>
+                <div class="meta-right">
+                  <span class="reading-time">{{ calculateReadingTime(article.word_count) }}</span>
+                  <span class="word-count">{{ article.word_count.toLocaleString() }} words</span>
+                </div>
               </div>
               <h3 class="article-title">
                 <a
@@ -316,7 +323,10 @@ function formatDate(dateString: string): string {
                     by {{ article.author }}
                   </span>
                 </div>
-                <span class="word-count">{{ article.word_count.toLocaleString() }} words</span>
+                <div class="meta-right">
+                  <span class="reading-time">{{ calculateReadingTime(article.word_count) }}</span>
+                  <span class="word-count">{{ article.word_count.toLocaleString() }} words</span>
+                </div>
               </div>
               <h3 class="article-title">
                 <a
@@ -655,5 +665,25 @@ function formatDate(dateString: string): string {
 .article-card.shortlisted .shortlist-icon {
   font-size: 1.2rem;
   opacity: 1;
+}
+
+.meta-right {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.reading-time {
+  color: var(--text-muted, #888);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.reading-time::before {
+  content: "⏱️";
+  font-size: 1rem;
 }
 </style> 
