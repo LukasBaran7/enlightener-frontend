@@ -31,4 +31,18 @@ export interface Article {
 export interface DayStats {
   dayName: string;
   count: number;
+}
+
+// Add helper function to calculate reading time
+export function calculateReadingTime(wordCount: number): string {
+  const WORDS_PER_MINUTE = 200;
+  const minutes = Math.ceil(wordCount / WORDS_PER_MINUTE);
+  
+  if (minutes < 1) {
+    return '< 1 min read';
+  } else if (minutes === 1) {
+    return '1 min read';
+  } else {
+    return `${minutes} min read`;
+  }
 } 
