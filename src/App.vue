@@ -5,7 +5,7 @@ import ArticleList from './components/ArticleList.vue'
 import DailyReadingStats from './components/DailyReadingStats.vue'
 import CuratedArticles from './components/CuratedArticles.vue'
 
-const activeTab = ref('articles')
+const activeTab = ref('random')
 </script>
 
 <template>

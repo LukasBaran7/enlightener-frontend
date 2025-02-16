@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Background -->
+  <circle cx="32" cy="32" r="30" fill="#4f46e5" />
+  
+  <!-- Books with different sizes and angles -->
+  <!-- Standing book -->
+  <path d="M20 18h4v24h-4z" fill="#fcd34d" />
+  <path d="M20 18h1v24h-1z" fill="#f59e0b" />
+  
+  <!-- Tilted book -->
+  <path d="M26 22l5-2v24l-5 2z" fill="#a7f3d0" />
+  <path d="M26 22l1-0.4v24l-1 0.4z" fill="#059669" />
+  
+  <!-- Thick book -->
+  <path d="M33 24h6v20h-6z" fill="#fecaca" />
+  <path d="M33 24h1.5v20h-1.5z" fill="#dc2626" />
+  
+  <!-- Thin book -->
+  <path d="M41 20h3v22h-3z" fill="#bfdbfe" />
+  <path d="M41 20h0.8v22h-0.8z" fill="#2563eb" />
+  
+  <!-- Audio wave symbol for podcasts -->
+  <path d="M28 38q4-6 8 0" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M26 35q6-8 12 0" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Lightbulb for suggestions/enlightenment -->
+  <circle cx="46" cy="18" r="6" fill="#fbbf24"/>
+  <path d="M46 24l-1.5-3h3l-1.5 3" fill="#fbbf24"/>
+</svg>
