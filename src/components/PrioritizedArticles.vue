@@ -18,10 +18,6 @@ const showToast = ref(false);
 const toastMessage = ref('');
 const toastType = ref<'success' | 'error'>('success');
 
-// Query parameters
-const limit = ref(10);
-const sampleSize = ref(100);
-
 async function loadPrioritizedArticles() {
   loading.value = true;
   error.value = null;
@@ -98,14 +94,6 @@ function getScoreColor(score: number): string {
   if (score >= 4) return 'var(--score-average, #ffc107)';
   if (score >= 2) return 'var(--score-below-average, #ff9800)';
   return 'var(--score-poor, #f44336)';
-}
-
-function getScoreLabel(score: number): string {
-  if (score >= 8) return 'Excellent';
-  if (score >= 6) return 'Good';
-  if (score >= 4) return 'Average';
-  if (score >= 2) return 'Below Average';
-  return 'Poor';
 }
 
 function formatScore(score: number): string {
