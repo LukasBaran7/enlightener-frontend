@@ -1,5 +1,6 @@
 import { Article } from '../types/Article';
 import { PrioritizedArticle } from '../types/PrioritizedArticle';
+import { LlmAnalyzedArticle } from '../types/LlmAnalyzedArticle';
 
 const BASE_API_URL = import.meta.env.VITE_API_URL + '/reader';
 const ARTICLES_API_URL = `${BASE_API_URL}/articles?days=14&sort_by=updated_at&order=desc`;
@@ -106,6 +107,40 @@ export async function fetchLowPriorityArticles(
     return data;
   } catch (error) {
     console.error('Error fetching low priority articles:', error);
+    throw error;
+  }
+}
+
+export async function fetchLlmRecommendedArticles(): Promise<{
+  articles: LlmAnalyzedArticle[];
+  count: number;
+}> {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/prioritization/llm-sample`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching LLM recommended articles:', error);
+    throw error;
+  }
+}
+
+export async function fetchLlmArchiveCandidates(): Promise<{
+  articles: LlmAnalyzedArticle[];
+  count: number;
+}> {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/prioritization/llm-archive`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching LLM archive candidates:', error);
     throw error;
   }
 } 
