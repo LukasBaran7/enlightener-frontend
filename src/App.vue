@@ -5,6 +5,7 @@ import ArticleList from './components/ArticleList.vue'
 import DailyReadingStats from './components/DailyReadingStats.vue'
 import CuratedArticles from './components/CuratedArticles.vue'
 import PrioritizedArticles from './components/PrioritizedArticles.vue'
+import ArchiveFastTrack from './components/ArchiveFastTrack.vue'
 
 const activeTab = ref('random')
 </script>
@@ -45,6 +46,12 @@ const activeTab = ref('random')
         Prioritized
       </button>
       <button 
+        :class="{ active: activeTab === 'archive' }"
+        @click="activeTab = 'archive'"
+      >
+        Archive Fast Track
+      </button>
+      <button 
         :class="{ active: activeTab === 'stats' }"
         @click="activeTab = 'stats'"
       >
@@ -63,6 +70,7 @@ const activeTab = ref('random')
     />
     <CuratedArticles v-if="activeTab === 'curated'" />
     <PrioritizedArticles v-if="activeTab === 'prioritized'" />
+    <ArchiveFastTrack v-if="activeTab === 'archive'" />
     <DailyReadingStats v-if="activeTab === 'stats'" />
   </div>
 </template>

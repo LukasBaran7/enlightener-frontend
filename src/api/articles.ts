@@ -81,4 +81,31 @@ export async function fetchPrioritizedArticles(): Promise<{
     console.error('Error fetching prioritized articles:', error);
     throw error;
   }
+}
+
+export async function fetchLowPriorityArticles(
+  minAgeDays: number = 1095
+): Promise<{
+  articles: PrioritizedArticle[];
+  metadata: {
+    total_processed: number;
+    returned_count: number;
+    criteria: {
+      min_age_days: number;
+    };
+  };
+}> {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/prioritization/low-priority?min_age_days=${minAgeDays}`
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching low priority articles:', error);
+    throw error;
+  }
 } 
