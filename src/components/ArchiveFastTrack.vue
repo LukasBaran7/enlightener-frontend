@@ -153,7 +153,8 @@ function getScoreColor(score: number): string {
   return 'var(--score-poor, #f44336)';
 }
 
-function formatScore(score: number): string {
+function formatScore(score: number | undefined | null): string {
+  if (score === undefined || score === null) return 'N/A';
   return score.toFixed(1);
 }
 

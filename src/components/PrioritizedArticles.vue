@@ -96,7 +96,8 @@ function getScoreColor(score: number): string {
   return 'var(--score-poor, #f44336)';
 }
 
-function formatScore(score: number): string {
+function formatScore(score: number | undefined | null): string {
+  if (score === undefined || score === null) return 'N/A';
   return score.toFixed(1);
 }
 </script>
@@ -131,7 +132,10 @@ function formatScore(score: number): string {
         </div>
         <div class="metadata-item">
           <span class="metadata-label">Score range:</span>
-          <span class="metadata-value">{{ formatScore(metadata.min_score) }} - {{ formatScore(metadata.max_score) }}</span>
+          <span class="metadata-value">
+            {{ metadata.min_score !== undefined ? formatScore(metadata.min_score) : 'N/A' }} - 
+            {{ metadata.max_score !== undefined ? formatScore(metadata.max_score) : 'N/A' }}
+          </span>
         </div>
         <div class="metadata-item">
           <span class="metadata-label">Showing:</span>
