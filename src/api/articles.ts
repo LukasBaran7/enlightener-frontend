@@ -1,4 +1,5 @@
 import { Article } from '../types/Article';
+import { PrioritizedArticle } from '../types/PrioritizedArticle';
 
 const BASE_API_URL = import.meta.env.VITE_API_URL + '/reader';
 const ARTICLES_API_URL = `${BASE_API_URL}/articles?days=14&sort_by=updated_at&order=desc`;
@@ -56,6 +57,28 @@ export async function shortlistArticle(articleId: string): Promise<void> {
     }
   } catch (error) {
     console.error('Error shortlisting article:', error);
+    throw error;
+  }
+}
+
+export async function fetchPrioritizedArticles(): Promise<{
+  articles: PrioritizedArticle[];
+  metadata: {
+    total_processed: number;
+    min_score: number;
+    max_score: number;
+    returned_count: number;
+  };
+}> {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/prioritization/sample`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching prioritized articles:', error);
     throw error;
   }
 } 
