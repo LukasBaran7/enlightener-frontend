@@ -6,72 +6,58 @@ import DailyReadingStats from './components/DailyReadingStats.vue'
 import CuratedArticles from './components/CuratedArticles.vue'
 import PrioritizedArticles from './components/PrioritizedArticles.vue'
 import ArchiveFastTrack from './components/ArchiveFastTrack.vue'
+import LlmRecommendations from './components/LlmRecommendations.vue'
+import LlmArchiveCandidates from './components/LlmArchiveCandidates.vue'
 
-const activeTab = ref('random')
+const activeTab = ref('articles')
+
+const tabs = [
+  { id: 'articles', label: 'Recent Articles', icon: '📚' },
+  { id: 'random', label: 'Read Later', icon: '📋' },
+  { id: 'curated', label: 'For You', icon: '🎯' },
+  { id: 'prioritized', label: 'Prioritized', icon: '🏆' },
+  { id: 'llm-recommendations', label: 'AI Recommendations', icon: '🧠' },
+  { id: 'archive-fast-track', label: 'Archive Fast Track', icon: '🗑️' },
+  { id: 'llm-archive', label: 'AI Archive Suggestions', icon: '🤖' },
+  { id: 'stats', label: 'Reading Stats', icon: '📊' },
+  { id: 'podcasts', label: 'Podcasts', icon: '🎧' }
+]
+
+function setActiveTab(tabId: string) {
+  activeTab.value = tabId
+}
 </script>
 
 <template>
   <div class="app">
-    <h1>My Media History</h1>
+    <header>
+      <h1>Reader Dashboard</h1>
+    </header>
     
-    <div class="tabs">
-      <button 
-        :class="{ active: activeTab === 'podcasts' }"
-        @click="activeTab = 'podcasts'"
+    <nav class="tabs">
+      <button
+        v-for="tab in tabs"
+        :key="tab.id"
+        class="tab-button"
+        :class="{ active: activeTab === tab.id }"
+        @click="setActiveTab(tab.id)"
       >
-        Podcast Episodes
+        <span class="tab-icon">{{ tab.icon }}</span>
+        <span class="tab-label">{{ tab.label }}</span>
       </button>
-      <button 
-        :class="{ active: activeTab === 'articles' }"
-        @click="activeTab = 'articles'"
-      >
-        Read Articles
-      </button>
-      <button 
-        :class="{ active: activeTab === 'random' }"
-        @click="activeTab = 'random'"
-      >
-        Read Later
-      </button>
-      <button 
-        :class="{ active: activeTab === 'curated' }"
-        @click="activeTab = 'curated'"
-      >
-        For You
-      </button>
-      <button 
-        :class="{ active: activeTab === 'prioritized' }"
-        @click="activeTab = 'prioritized'"
-      >
-        Prioritized
-      </button>
-      <button 
-        :class="{ active: activeTab === 'archive' }"
-        @click="activeTab = 'archive'"
-      >
-        Archive Fast Track
-      </button>
-      <button 
-        :class="{ active: activeTab === 'stats' }"
-        @click="activeTab = 'stats'"
-      >
-        Reading Stats
-      </button>
-    </div>
-
-    <EpisodeList v-if="activeTab === 'podcasts'" />
-    <ArticleList 
-      v-if="activeTab === 'articles'" 
-      :mode="'history'" 
-    />
-    <ArticleList 
-      v-if="activeTab === 'random'" 
-      :mode="'random'" 
-    />
-    <CuratedArticles v-if="activeTab === 'curated'" />
-    <PrioritizedArticles v-if="activeTab === 'prioritized'" />
-    <ArchiveFastTrack v-if="activeTab === 'archive'" />
-    <DailyReadingStats v-if="activeTab === 'stats'" />
+    </nav>
+    
+    <main>
+      <EpisodeList v-if="activeTab === 'podcasts'" />
+      <ArticleList v-if="activeTab === 'articles'" :mode="'history'" />
+      <ArticleList v-if="activeTab === 'random'" :mode="'random'" />
+      <CuratedArticles v-if="activeTab === 'curated'" />
+      <PrioritizedArticles v-if="activeTab === 'prioritized'" />
+      <LlmRecommendations v-if="activeTab === 'llm-recommendations'" />
+      <ArchiveFastTrack v-if="activeTab === 'archive-fast-track'" />
+      <LlmArchiveCandidates v-if="activeTab === 'llm-archive'" />
+      <DailyReadingStats v-if="activeTab === 'stats'" />
+    </main>
   </div>
 </template>
 
@@ -82,50 +68,84 @@ const activeTab = ref('random')
   padding: 2rem;
 }
 
-h1 {
+header {
+  padding: 1rem;
   text-align: center;
-  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color, #333);
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin: 0;
 }
 
 .tabs {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  overflow-x: auto;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--bg-secondary, #1a1a1a);
+  border-bottom: 1px solid var(--border-color, #333);
 }
 
-.tabs button {
-  padding: 0.75rem 1.5rem;
+.tab-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--tab-bg, #2a2a2a);
+  color: var(--text-primary, #fff);
+  border: none;
   border-radius: 8px;
-  background: var(--card-bg, #ffffff0d);
-  border: 2px solid transparent;
-  color: var(--text-color, #ffffff);
   cursor: pointer;
-  font-size: 1rem;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.tabs button:hover {
-  background: var(--button-hover-bg, #ffffff1a);
+.tab-button:hover {
+  background: var(--tab-hover-bg, #3a3a3a);
 }
 
-.tabs button.active {
-  background: var(--button-bg, #646cff);
-  border-color: var(--button-hover-bg, #535bf2);
+.tab-button.active {
+  background: var(--tab-active-bg, #4a4a4a);
+  font-weight: 500;
+}
+
+.tab-icon {
+  font-size: 1.25rem;
+}
+
+main {
+  padding: 1rem;
+}
+
+@media (max-width: 768px) {
+  .tabs {
+    padding: 0.75rem;
+    gap: 0.25rem;
+  }
+  
+  .tab-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .tab-icon {
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 640px) {
-  .app {
-    padding: 1rem;
+  .tab-label {
+    display: none;
   }
-
-  .tabs {
-    flex-direction: column;
-    padding: 0 1rem;
+  
+  .tab-button {
+    padding: 0.5rem;
   }
-
-  .tabs button {
-    width: 100%;
+  
+  .tab-icon {
+    font-size: 1.5rem;
   }
 }
 </style>
