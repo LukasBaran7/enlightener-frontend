@@ -5,7 +5,6 @@ import { archiveArticle, shortlistArticle } from '../api/articles';
 import ToastNotification from './ToastNotification.vue';
 import ArticleCard from './ArticleCard.vue';
 import ListHeader from './ListHeader.vue';
-import { calculateReadingTime } from '../types/Article';
 
 interface CuratedData {
   quick_reads: Article[];
@@ -107,14 +106,6 @@ async function handleShortlist(articleId: string, section: keyof CuratedData) {
 onMounted(() => {
   reloadCurated();
 });
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-}
 </script>
 
 <template>

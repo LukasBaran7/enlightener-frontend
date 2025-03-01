@@ -104,8 +104,6 @@ const readingDistribution = computed(() => {
   };
 });
 
-const isReadLaterMode = computed(() => props.mode === 'random');
-
 async function reloadArticles() {
   loading.value = true;
   error.value = null;

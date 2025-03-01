@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { Line } from 'vue-chartjs';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { format, parseISO, startOfWeek, addDays, differenceInDays, eachDayOfInterval, subMonths, isWithinInterval, isSameDay } from 'date-fns';
+import { format, parseISO, startOfWeek, addDays, differenceInDays } from 'date-fns';
 import { fetchDailyCounts } from '../api/stats';
 
 // Register Chart.js components
@@ -192,7 +192,6 @@ const chartOptions = {
           return `${label}: ${value}`;
         },
         footer: function(context: any) {
-          const date = context[0].label;
           const readValue = formattedData.value.datasets[1].data[context[0].dataIndex];
           const savedValue = formattedData.value.datasets[2].data[context[0].dataIndex];
           
@@ -257,7 +256,7 @@ const chartOptions = {
         minRotation: 45,
         autoSkip: true,
         maxTicksLimit: 15, // Limit the number of ticks shown on the x-axis
-        callback: function(value: any, index: number, values: any[]) {
+        callback: function(_value: any, index: number, _values: any[]) {
           // Show fewer labels on the x-axis for better readability
           const labels = formattedData.value.labels;
           if (labels.length <= 15 || index % Math.ceil(labels.length / 15) === 0) {
@@ -313,19 +312,6 @@ const stats = computed(() => {
     readTotal: readData.reduce((sum, item) => sum + item.count, 0),
     savedTotal: savedData.reduce((sum, item) => sum + item.count, 0)
   };
-});
-
-const tableData = computed(() => {
-  const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-  
-  return readCounts.value.map(item => ({
-    date: format(parseISO(item.date), 'EEE, MMM d'),
-    count: item.count,
-    goalMet: item.count >= 5,
-    remaining: Math.max(0, 5 - item.count),
-    percentage: (item.count / 5) * 100,
-    isToday: item.date === today
-  })).reverse();
 });
 
 const weeklyStats = computed(() => {

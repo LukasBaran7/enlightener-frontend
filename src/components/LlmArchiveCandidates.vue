@@ -5,7 +5,6 @@ import { fetchLlmArchiveCandidates, archiveArticle } from '../api/articles';
 import ToastNotification from './ToastNotification.vue';
 import ArticleCard from './ArticleCard.vue';
 import ListHeader from './ListHeader.vue';
-import { calculateReadingTime } from '../types/Article';
 
 const articles = ref<LlmAnalyzedArticle[]>([]);
 const metadata = ref<{
@@ -109,36 +108,6 @@ async function handleArchiveAll() {
 onMounted(() => {
   loadLlmArchiveCandidates();
 });
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-}
-
-function getScoreColor(score: number): string {
-  if (score >= 80) return 'var(--score-excellent, #4caf50)';
-  if (score >= 60) return 'var(--score-good, #8bc34a)';
-  if (score >= 40) return 'var(--score-average, #ffc107)';
-  if (score >= 20) return 'var(--score-below-average, #ff9800)';
-  return 'var(--score-poor, #f44336)';
-}
-
-function formatScore(score: number): string {
-  return score.toFixed(0);
-}
-
-function getRecommendationClass(recommendation: string): string {
-  if (recommendation.startsWith('READ')) return 'read';
-  return 'skip';
-}
-
-function getRecommendationIcon(recommendation: string): string {
-  if (recommendation.startsWith('READ')) return '✅';
-  return '⏭️';
-}
 
 // Add a function to check if an article is archived
 function isArticleArchived(articleId: string): boolean {

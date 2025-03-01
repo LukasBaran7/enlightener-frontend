@@ -20,7 +20,7 @@ const toastMessage = ref('');
 const toastType = ref<'success' | 'error'>('success');
 
 const formattedMetadata = computed(() => {
-  if (!metadata.value) return null;
+  if (!metadata.value) return undefined;
   
   return {
     'Analyzed': `${metadata.value.total_processed} articles`,

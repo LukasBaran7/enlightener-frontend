@@ -17,7 +17,7 @@ const toastMessage = ref('');
 const toastType = ref<'success' | 'error'>('success');
 
 const formattedMetadata = computed(() => {
-  if (!metadata.value) return null;
+  if (!metadata.value) return undefined;
   
   return {
     'Showing': `${metadata.value.count} AI-analyzed articles`

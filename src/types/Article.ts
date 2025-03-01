@@ -25,6 +25,7 @@ export interface Article {
   saved_at: string;
   last_moved_at: string;
   shortlisted?: boolean;
+  analyzed_at?: string;
 }
 
 // Add helper type for reading distribution

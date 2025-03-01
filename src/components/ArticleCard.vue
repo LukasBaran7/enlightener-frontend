@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { Article } from '../types/Article';
 import { calculateReadingTime } from '../types/Article';
 
@@ -157,8 +156,8 @@ function handleShortlist() {
         <div class="reading-info">
           <time>Saved {{ formatDate(article.saved_at) }}</time>
           <time v-if="article.updated_at">{{ formatDate(article.updated_at) }}</time>
-          <div v-if="article.analyzed_at" class="analyzed-at">
-            Analyzed {{ formatDate(article.analyzed_at) }}
+          <div v-if="article.analyzed_at !== undefined" class="analyzed-at">
+            Analyzed {{ formatDate(article.analyzed_at as string) }}
           </div>
         </div>
         <div class="stats">
