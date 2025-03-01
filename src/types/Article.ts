@@ -34,7 +34,11 @@ export interface DayStats {
 }
 
 // Add helper function to calculate reading time
-export function calculateReadingTime(wordCount: number): string {
+export function calculateReadingTime(wordCount: number | null): string {
+  if (wordCount === null || wordCount === undefined) {
+    return 'Unknown reading time';
+  }
+  
   const WORDS_PER_MINUTE = 200;
   const minutes = Math.ceil(wordCount / WORDS_PER_MINUTE);
   
